@@ -2802,7 +2802,7 @@ function openTTKModal(id){
       '<div><label class="lbl">Артикул</label><input class="inp" value="'+t.id+'" onblur="window._ettk.id=this.value"></div>'+
       '<div><label class="lbl">Категория</label><select class="inp" onchange="window._ettk.category=this.value">'+cats.map(function(c){return'<option'+(c===t.category?' selected':'')+'>'+c+'</option>';}).join('')+'</select></div>'+
     '</div>'+
-    '<div class="fw"><label class="lbl">Название</label><input class="inp" value="'+t.name+'" onblur="window._ettk.name=this.value" oninput="window._ettk.name=this.value;markModalDirty()" placeholder="Название блюда"></div>'+
+    '<div class="fw"><label class="lbl">Название</label><input class="inp" value="'+esc(t.name)+'" onblur="window._ettk.name=this.value" oninput="window._ettk.name=this.value;markModalDirty()" placeholder="Название блюда"></div>'+
     '<div class="fr">'+
       '<div><label class="lbl">Выход (г/мл)</label><input id="ttkYield" class="inp" type="text" inputmode="decimal" value="'+t.yield+'" oninput="window._ettk.yield=parseFloat(this.value.replace(\',\',\'.\'))||0;window._ettk._yieldManual=true" onblur="window._ettk.yield=parseFloat(this.value.replace(\',\',\'.\'))||0;window._ettk._yieldManual=true"></div>'+
       '<div><label class="lbl">Цена меню ₸</label><input id="ttkMenuPrice" class="inp" type="text" inputmode="decimal" value="'+t.menuPrice+'" onblur="window._ettk.menuPrice=parseFloat(this.value.replace(\',\',\'.\'))||0;window._updateTTKCostDisplay()"></div>'+
@@ -3234,10 +3234,10 @@ window.onPriceSearch=function(v){
     var entries=phMap[name].sort(function(a,b){return b.date.localeCompare(a.date);});
     var prices=entries.map(function(e){return e.price;});
     var minP=Math.min.apply(null,prices),maxP=Math.max.apply(null,prices);
-    html+='<div class="cd"><div class="cd-title">'+name+'<span style="font-size:10px;font-weight:400;color:#64748b;margin-left:8px">мин: '+fmt(minP,2)+' / макс: '+fmt(maxP,2)+' ₸</span></div>'+
+    html+='<div class="cd"><div class="cd-title">'+esc(name)+'<span style="font-size:10px;font-weight:400;color:#64748b;margin-left:8px">мин: '+fmt(minP,2)+' / макс: '+fmt(maxP,2)+' ₸</span></div>'+
       renderBarChart(entries.slice(0,8).reverse().map(function(e){return{label:e.date.slice(5),val:e.price};}), '#38bdf8')+
       '<div class="ph-row" style="font-size:9px;color:#475569;text-transform:uppercase;font-weight:700"><span>Дата</span><span>Поставщик</span><span style="text-align:right">Цена</span></div>'+
-      entries.map(function(e){return'<div class="ph-row"><span>'+e.date+'</span><span style="color:#94a3b8">'+e.supplier+'</span><span style="text-align:right;color:#6366f1;font-weight:600">'+fmt(e.price,2)+' ₸</span></div>';}).join('')+
+      entries.map(function(e){return'<div class="ph-row"><span>'+e.date+'</span><span style="color:#94a3b8">'+esc(e.supplier)+'</span><span style="text-align:right;color:#6366f1;font-weight:600">'+fmt(e.price,2)+' ₸</span></div>';}).join('')+
     '</div>';
   });
   listEl.innerHTML=html;
@@ -3261,10 +3261,10 @@ function renderPriceContent(){
     var entries=phMap[name].sort(function(a,b){return b.date.localeCompare(a.date);});
     var prices=entries.map(function(e){return e.price;});
     var minP=Math.min.apply(null,prices),maxP=Math.max.apply(null,prices);
-    listHtml+='<div class="cd"><div class="cd-title">'+name+'<span style="font-size:10px;font-weight:400;color:#64748b;margin-left:8px">мин: '+fmt(minP,2)+' / макс: '+fmt(maxP,2)+' ₸</span></div>'+
+    listHtml+='<div class="cd"><div class="cd-title">'+esc(name)+'<span style="font-size:10px;font-weight:400;color:#64748b;margin-left:8px">мин: '+fmt(minP,2)+' / макс: '+fmt(maxP,2)+' ₸</span></div>'+
       renderBarChart(entries.slice(0,8).reverse().map(function(e){return{label:e.date.slice(5),val:e.price};}), '#38bdf8')+
       '<div class="ph-row" style="font-size:9px;color:#475569;text-transform:uppercase;font-weight:700"><span>Дата</span><span>Поставщик</span><span style="text-align:right">Цена</span></div>'+
-      entries.map(function(e){return'<div class="ph-row"><span>'+e.date+'</span><span style="color:#94a3b8">'+e.supplier+'</span><span style="text-align:right;color:#6366f1;font-weight:600">'+fmt(e.price,2)+' ₸</span></div>';}).join('')+
+      entries.map(function(e){return'<div class="ph-row"><span>'+e.date+'</span><span style="color:#94a3b8">'+esc(e.supplier)+'</span><span style="text-align:right;color:#6366f1;font-weight:600">'+fmt(e.price,2)+' ₸</span></div>';}).join('')+
     '</div>';
   });}
   return searchHtml+'<div id="priceAnalytList">'+listHtml+'</div>';
@@ -3279,7 +3279,7 @@ function renderLowStockContent(){
     ['Товар','Остаток','Минимум','Статус'].map(function(h){return'<div style="font-size:9px;color:#475569;text-transform:uppercase;font-weight:700">'+h+'</div>';}).join('')+'</div>'+
     low.map(function(x){var p=x.p,st=x.st;
       return'<div style="display:grid;grid-template-columns:2fr 1fr 1fr 60px;gap:6px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06);align-items:center;font-size:11px">'+
-        '<div style="font-weight:600">'+p.name+'<div style="font-size:9px;color:#475569">'+p.unit+'</div></div>'+
+        '<div style="font-weight:600">'+esc(p.name)+'<div style="font-size:9px;color:#475569">'+p.unit+'</div></div>'+
         '<div style="color:'+(st==='def'?'#ef4444':'#facc15')+';font-weight:600">'+fmt(p.qty,3)+'</div>'+
         '<div style="color:#64748b">'+p.minQty+'</div>'+
         '<span class="tag tag-'+st+'">'+(st==='def'?'Дефицит':'Мало')+'</span>'+
@@ -3386,7 +3386,7 @@ function renderTopExpenses(){
       var pct=totalCost>0?((x.totalCost/totalCost)*100).toFixed(1):0;
       return'<div style="margin-bottom:10px">'+
         '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">'+
-          '<span style="font-size:12px;font-weight:600"><span style="color:#475569;margin-right:5px">'+(i+1)+'</span>'+x.name+'</span>'+
+          '<span style="font-size:12px;font-weight:600"><span style="color:#475569;margin-right:5px">'+(i+1)+'</span>'+esc(x.name)+'</span>'+
           '<span style="font-size:12px;font-weight:700;color:#ef4444">'+fmt(x.totalCost)+' ₸</span>'+
         '</div>'+
         '<div style="height:4px;background:rgba(255,255,255,.06);border-radius:2px;margin-bottom:3px">'+
@@ -4980,7 +4980,7 @@ function incItemHTML(item,idx){
     return '<div id="incRow'+idx+'" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:12px;margin-bottom:8px">'+
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;gap:8px">'+
         '<div style="position:relative;flex:1">'+
-          '<input class="inp" id="incN'+idx+'" placeholder="Товар" value="'+item.name+'" autocomplete="off" oninput="onIncInput('+idx+',this.value)" onfocus="showIncSugg('+idx+')" onblur="setTimeout(function(){hideIncSugg('+idx+')},200)">'+
+          '<input class="inp" id="incN'+idx+'" placeholder="Товар" value="'+esc(item.name)+'" autocomplete="off" oninput="onIncInput('+idx+',this.value)" onfocus="showIncSugg('+idx+')" onblur="setTimeout(function(){hideIncSugg('+idx+')},200)">'+
           '<div class="sugg-box" id="incSugg'+idx+'" style="display:none"></div>'+
         '</div>'+
         modeBtns+
@@ -5341,7 +5341,7 @@ function _buildWriteRows(filtered){
       isInvent?' <span style="font-size:9px;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.2);color:#38bdf8;border-radius:4px;padding:1px 5px;margin-left:4px">ревизия</span>':'';
     return '<div class="list-row" style="display:flex;align-items:center;gap:8px'+(isWaste?';opacity:.7':'')+'">'+
       '<div style="flex:1;min-width:0">'+
-        '<div class="row-top"><span style="'+nameStyle+'">'+w.productName+'</span><span style="'+qtyStyle+'">'+qtySign+fmt(w.qty,3)+' '+w.unit+'</span></div>'+
+        '<div class="row-top"><span style="'+nameStyle+'">'+esc(w.productName)+'</span><span style="'+qtyStyle+'">'+qtySign+fmt(w.qty,3)+' '+w.unit+'</span></div>'+
         '<div class="row-meta">'+w.date+' · '+w.type+(w.note?' · '+esc(w.note):'')+(w.cost&&!noDelete?'<span style="color:#64748b;margin-left:6px">'+fmt(w.qty*w.cost,0)+' ₸</span>':'')+metaSuffix+'</div>'+
       '</div>'+
       (!noDelete?'<button class="trash-del-btn" onclick="delWriteoff(\''+w.id+'\')" title="Удалить">×</button>':
@@ -5394,6 +5394,10 @@ function renderWriteoffs(){
     '';
   return '<div style="display:flex;gap:8px;margin-bottom:12px">'+
     '<button class="btn btn-p" onclick="openWriteoffModal()" style="flex:1">+ Новое списание</button>'+
+    '<button class="btn btn-b btn-sm" onclick="openGroupWriteoffModal()" style="flex-shrink:0;padding:9px 12px;display:flex;align-items:center;gap:5px">'+
+      '<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/></svg>'+
+      'Группой'+
+    '</button>'+
     '<button class="btn btn-g btn-sm" onclick="openWriteTemplatesModal()" title="Шаблоны" style="flex-shrink:0;padding:9px 12px">'+
       '<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>'+
     '</button>'+
@@ -5584,6 +5588,148 @@ window.applyWriteTemplate=function(ti){
   if(skipped.length)showToast('Не найдено: '+skipped.join(', '),'err');
   renderTab('write');
 };
+// ===== Групповое списание (несколько товаров одной датой за один раз) =====
+var _gwState=null;
+function _gwStep(unit){
+  if(unit==='кг'||unit==='л')return 0.1;
+  if(unit==='г'||unit==='мл')return 10;
+  return 1;
+}
+function _gwDecimals(unit){return(unit==='кг'||unit==='л')?3:(unit==='г'||unit==='мл')?0:2;}
+window.openGroupWriteoffModal=function(){
+  if(!isOwner()){showToast('Нет доступа','err');return;}
+  if(!DB.products.length){showToast('Сначала добавьте товары на склад','err');return;}
+  _gwState={date:toDay(),type:'Ручное списание',note:'',search:'',draft:{}};
+  _renderGroupWriteoffModal();
+};
+function _gwProductRows(){
+  var q=_gwState.search.toLowerCase().trim();
+  var list=q?DB.products.filter(function(p){return p.name.toLowerCase().includes(q);}):DB.products;
+  if(!list.length)return '<div class="empty"><div class="empty-text">Не найдено</div></div>';
+  return list.map(function(p){
+    var v=_gwState.draft[p.id]||0;
+    return '<div id="gwrow_'+p.id+'" class="cd" style="padding:9px 12px;margin-bottom:7px;'+(v>0?'border-color:rgba(239,68,68,.4)':'')+'">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">'+
+        '<div style="min-width:0;flex:1">'+
+          '<div style="font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(p.name)+'</div>'+
+          '<div style="font-size:10px;color:#64748b">Остаток: <span style="color:'+(p.qty<0?'#ef4444':p.qty===0?'#facc15':'#4ade80')+'">'+fmt(p.qty,3)+' '+esc(p.unit)+'</span></div>'+
+        '</div>'+
+        '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">'+
+          '<button onclick="_gwAdjQty(\''+p.id+'\',-1)" style="width:26px;height:26px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:#e2e8f0;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">−</button>'+
+          '<input id="gwq_'+p.id+'" type="text" inputmode="decimal" value="'+(v?fmt(v,_gwDecimals(p.unit)):'')+'" placeholder="0" style="width:54px;text-align:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 4px;color:#e2e8f0;font-size:13px;font-weight:700" oninput="_gwQtyInput(\''+p.id+'\',this.value)">'+
+          '<button onclick="_gwAdjQty(\''+p.id+'\',1)" style="width:26px;height:26px;border-radius:8px;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.12);color:#ef4444;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">+</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+function _gwSummary(){
+  var count=0,sum=0;
+  Object.keys(_gwState.draft).forEach(function(pid){
+    var qty=_gwState.draft[pid];
+    if(qty>0){var p=findP(pid);count++;if(p)sum+=qty*p.cost;}
+  });
+  return{count:count,sum:sum};
+}
+function _gwUpdateSummary(){
+  var s=_gwSummary();
+  var el=document.getElementById('gwSummaryBar');
+  if(el)el.innerHTML=s.count>0?
+    '<span style="font-size:11px;color:#94a3b8;font-weight:600">Выбрано: '+s.count+'</span>'+
+    '<span style="font-size:13px;font-weight:800;color:#ef4444">'+fmt(s.sum)+' ₸</span>':
+    '<span style="font-size:11px;color:#64748b">Укажите количество для товаров ниже</span>';
+  var btn=document.getElementById('gwSubmitBtn');
+  if(btn)btn.textContent=s.count>0?'Списать '+s.count+' поз. на сумму '+fmt(s.sum)+' ₸':'Списать';
+}
+window._gwAdjQty=function(pid,delta){
+  var p=findP(pid);if(!p)return;
+  var step=_gwStep(p.unit);
+  var cur=_gwState.draft[pid]||0;
+  var next=Math.max(0,parseFloat((cur+delta*step).toFixed(4)));
+  _gwState.draft[pid]=next;
+  var inp=document.getElementById('gwq_'+pid);
+  if(inp)inp.value=next?fmt(next,_gwDecimals(p.unit)):'';
+  var row=document.getElementById('gwrow_'+pid);
+  if(row)row.style.borderColor=next>0?'rgba(239,68,68,.4)':'';
+  _gwUpdateSummary();
+  markModalDirty();
+};
+window._gwQtyInput=function(pid,val){
+  var qty=parseFloat((val||'').replace(',','.'))||0;
+  if(qty<0)qty=0;
+  _gwState.draft[pid]=qty;
+  var row=document.getElementById('gwrow_'+pid);
+  if(row)row.style.borderColor=qty>0?'rgba(239,68,68,.4)':'';
+  _gwUpdateSummary();
+  markModalDirty();
+};
+window._gwFilter=function(val){
+  _gwState.search=val||'';
+  var wrap=document.getElementById('gwRows');
+  if(wrap)wrap.innerHTML=_gwProductRows();
+  var clr=document.getElementById('gwSearchClear');
+  if(clr)clr.style.display=val?'block':'none';
+};
+window._gwSetDate=function(v){_gwState.date=v;markModalDirty();};
+window._gwSetType=function(v){_gwState.type=v;markModalDirty();};
+window._gwSetNote=function(v){_gwState.note=v;markModalDirty();};
+function _renderGroupWriteoffModal(){
+  openModal(
+    '<button class="modal-close" onclick="closeModal()">✕</button>'+
+    '<div class="modal-title">Списание группой</div>'+
+    '<div style="font-size:11px;color:#64748b;margin-bottom:14px;line-height:1.5">Внесите количество по нескольким товарам сразу — все они спишутся одной операцией на выбранную дату.</div>'+
+    '<div class="fr">'+
+      '<div><label class="lbl">Дата</label><input id="gwDate" class="inp" type="date" value="'+_gwState.date+'" onchange="_gwSetDate(this.value)"></div>'+
+      '<div><label class="lbl">Тип</label><select id="gwType" class="inp" onchange="_gwSetType(this.value)">'+
+        WRITE_TYPES.map(function(t){return'<option'+(t===_gwState.type?' selected':'')+'>'+t+'</option>';}).join('')+
+      '</select></div>'+
+    '</div>'+
+    '<div class="fw"><label class="lbl">Комментарий <span style="font-weight:400;color:var(--text4)">(необязательно, для всех позиций)</span></label><input id="gwNote" class="inp" placeholder="Например: инвентаризация зала" oninput="_gwSetNote(this.value)"></div>'+
+    '<div style="position:relative;margin-bottom:10px">'+
+      '<input id="gwSearchInp" class="inp" placeholder="Поиск товара..." autocomplete="off" oninput="_gwFilter(this.value)" style="padding-right:36px">'+
+      '<button id="gwSearchClear" style="display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#64748b;font-size:18px;cursor:pointer;line-height:1;padding:0 4px" onmousedown="event.preventDefault();_gwFilter(\'\');document.getElementById(\'gwSearchInp\').value=\'\';this.style.display=\'none\'">×</button>'+
+    '</div>'+
+    '<div id="gwRows" style="max-height:38vh;overflow-y:auto;margin-bottom:10px">'+_gwProductRows()+'</div>'+
+    '<div id="gwSummaryBar" class="row-flex" style="background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.18);border-radius:12px;padding:10px 14px;margin-bottom:12px">'+
+      '<span style="font-size:11px;color:#64748b">Укажите количество для товаров ниже</span>'+
+    '</div>'+
+    '<button id="gwSubmitBtn" class="btn btn-p" onclick="_gwSubmit()">Списать</button>'
+  );
+}
+window._gwSubmit=function(){
+  if(!isOwner()){showToast('Нет доступа','err');return;}
+  if(!_gwState.date){showToast('Укажите дату','err');return;}
+  var items=Object.keys(_gwState.draft).map(function(pid){return{pid:pid,qty:_gwState.draft[pid]};}).filter(function(it){return it.qty>0;});
+  if(!items.length){showToast('Укажите количество хотя бы для одного товара','err');return;}
+  var shortages=[];
+  items.forEach(function(it){
+    var p=findP(it.pid);
+    if(p&&it.qty>p.qty)shortages.push(p.name);
+  });
+  function doSubmit(){
+    var date=_gwState.date,type=_gwState.type,note=_gwState.note.trim();
+    items.forEach(function(it){
+      var p=findP(it.pid);if(!p)return;
+      p.qty=parseFloat((p.qty-it.qty).toFixed(4));
+      DB.writeoffs.unshift({id:genId('W'),date:date,type:type,pid:p.id,productName:p.name,unit:p.unit,qty:it.qty,cost:p.cost,note:note,addedBy:AUTH.profile?AUTH.profile.name||AUTH.profile.email:'',addedByRole:AUTH.role||'owner'});
+    });
+    invalidateTTKCostCache();
+    scheduleSave(['writeoffs','products']);
+    showToast('Списано '+items.length+' поз. на '+date);
+    _forceCloseModal();
+    renderTab('write');
+  }
+  if(shortages.length){
+    openConfirm(
+      'Остатка не хватает',
+      'По '+shortages.length+' товар(ам) остаток уйдёт в минус: '+shortages.slice(0,5).join(', ')+(shortages.length>5?' и др.':'')+'.',
+      doSubmit,
+      'Продолжить'
+    );
+  }else{
+    doSubmit();
+  }
+};
 var _salesDate=null;
 var _salesDraft={};
 window._salesSearchFilter=function(v){
@@ -5628,7 +5774,7 @@ function renderSalesDishes(){
         var savedQty=_salesDraft[t.id]||0;
         return '<div class="sales-dish-row cd" data-name="'+esc(t.name.toLowerCase())+'" data-cat="'+esc(cat.toLowerCase())+'" style="padding:10px 12px;margin-bottom:8px">'+
           '<div style="display:flex;justify-content:space-between;align-items:center">'+
-            '<div><div style="font-size:12px;font-weight:700">'+t.name+'</div>'+
+            '<div><div style="font-size:12px;font-weight:700">'+esc(t.name)+'</div>'+
               '<div style="font-size:10px;color:#64748b">'+fmt(t.menuPrice)+' ₸ · <span style="color:#ef4444">с/с '+fmt(m.cost,0)+' ₸</span> · <span style="color:'+(m.pct>=60?'#4ade80':m.pct>=40?'#facc15':'#ef4444')+'">'+fmtP(m.pct)+'</span></div></div>'+
             '<div style="display:flex;align-items:center;gap:6px">'+
               '<button onclick="adjSaleQty(\''+t.id+'\',-1)" style="width:28px;height:28px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:#e2e8f0;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">−</button>'+
@@ -5996,7 +6142,7 @@ function renderInventory(){
         var badge=it.diff>0?'<span style="font-size:9px;color:#4ade80;background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.2);border-radius:4px;padding:1px 5px;margin-left:4px">+приход</span>':
                             '<span style="font-size:9px;color:#ef4444;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:4px;padding:1px 5px;margin-left:4px">−списание</span>';
         return '<div class="inv-row">'+
-          '<div style="font-weight:600">'+it.name+badge+'</div>'+
+          '<div style="font-weight:600">'+esc(it.name)+badge+'</div>'+
           '<div>'+fmt(it.system,3)+' '+it.unit+'</div>'+
           '<div>'+fmt(it.actual,3)+' '+it.unit+'</div>'+
           '<div style="color:'+cl+';font-weight:700">'+(it.diff>0?'+':'')+fmt(it.diff,3)+'</div>'+
@@ -6358,7 +6504,7 @@ window.startInventory._openModal=function(form){
   };
   function invRow(it,i){
     return '<div style="display:grid;grid-template-columns:1.8fr 0.85fr 1fr;gap:6px;margin-bottom:6px;align-items:center">'+
-      '<div style="font-size:12px;font-weight:500">'+it.name+'<div style="font-size:10px;color:#475569">'+it.unit+'</div></div>'+
+      '<div style="font-size:12px;font-weight:500">'+esc(it.name)+'<div style="font-size:10px;color:#475569">'+it.unit+'</div></div>'+
       '<div style="font-size:11px;color:#64748b;padding:6px 0">'+fmt(it.system,3)+'</div>'+
       '<input class="inp" type="text" inputmode="decimal" placeholder="факт" value="'+(it._touched?it.actual:'')+'" style="padding:8px;font-size:13px" oninput="_invForm.items['+i+'].actual=parseFloat(this.value.replace(\',\',\'.\'))||0;_invForm.items['+i+']._touched=true;markModalDirty()">'+
     '</div>';
