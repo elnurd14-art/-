@@ -5596,6 +5596,15 @@ function _gwStep(unit){
   return 1;
 }
 function _gwDecimals(unit){return(unit==='кг'||unit==='л')?3:(unit==='г'||unit==='мл')?0:2;}
+// Единица, в которой удобно вводить количество вручную:
+// для кг/л даём вводить граммы/миллилитры (целым числом), а не дробные кг/л.
+function _gwInputFactor(unit){return(unit==='кг'||unit==='л')?1000:1;}
+function _gwInputUnitLabel(unit){return unit==='кг'?'г':unit==='л'?'мл':unit;}
+function _gwInputStep(unit){
+  if(unit==='кг'||unit==='л')return 50; // шаг 50 г/мл
+  if(unit==='г'||unit==='мл')return 10;
+  return 1;
+}
 window.openGroupWriteoffModal=function(){
   if(!isOwner()){showToast('Нет доступа','err');return;}
   if(!DB.products.length){showToast('Сначала добавьте товары на склад','err');return;}
@@ -5608,6 +5617,9 @@ function _gwProductRows(){
   if(!list.length)return '<div class="empty"><div class="empty-text">Не найдено</div></div>';
   return list.map(function(p){
     var v=_gwState.draft[p.id]||0;
+    var factor=_gwInputFactor(p.unit);
+    var inpUnit=_gwInputUnitLabel(p.unit);
+    var dispVal=v?Math.round(v*factor*10000)/10000:0;
     return '<div id="gwrow_'+p.id+'" class="cd" style="padding:9px 12px;margin-bottom:7px;'+(v>0?'border-color:rgba(239,68,68,.4)':'')+'">'+
       '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">'+
         '<div style="min-width:0;flex:1">'+
@@ -5616,7 +5628,10 @@ function _gwProductRows(){
         '</div>'+
         '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">'+
           '<button onclick="_gwAdjQty(\''+p.id+'\',-1)" style="width:26px;height:26px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:#e2e8f0;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">−</button>'+
-          '<input id="gwq_'+p.id+'" type="text" inputmode="decimal" value="'+(v?fmt(v,_gwDecimals(p.unit)):'')+'" placeholder="0" style="width:54px;text-align:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 4px;color:#e2e8f0;font-size:13px;font-weight:700" oninput="_gwQtyInput(\''+p.id+'\',this.value)">'+
+          '<div style="display:flex;flex-direction:column;align-items:center;gap:1px">'+
+            '<input id="gwq_'+p.id+'" type="text" inputmode="decimal" value="'+(dispVal?fmt(dispVal,factor>1?0:_gwDecimals(p.unit)):'')+'" placeholder="0" style="width:64px;text-align:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 4px;color:#e2e8f0;font-size:13px;font-weight:700" oninput="_gwQtyInput(\''+p.id+'\',this.value)">'+
+            '<span style="font-size:8px;color:#64748b;text-transform:lowercase">'+esc(inpUnit)+'</span>'+
+          '</div>'+
           '<button onclick="_gwAdjQty(\''+p.id+'\',1)" style="width:26px;height:26px;border-radius:8px;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.12);color:#ef4444;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">+</button>'+
         '</div>'+
       '</div>'+
@@ -5643,20 +5658,25 @@ function _gwUpdateSummary(){
 }
 window._gwAdjQty=function(pid,delta){
   var p=findP(pid);if(!p)return;
-  var step=_gwStep(p.unit);
-  var cur=_gwState.draft[pid]||0;
-  var next=Math.max(0,parseFloat((cur+delta*step).toFixed(4)));
+  var factor=_gwInputFactor(p.unit);
+  var step=_gwInputStep(p.unit);
+  var curDisp=Math.round((_gwState.draft[pid]||0)*factor*10000)/10000;
+  var nextDisp=Math.max(0,curDisp+delta*step);
+  var next=parseFloat((nextDisp/factor).toFixed(4));
   _gwState.draft[pid]=next;
   var inp=document.getElementById('gwq_'+pid);
-  if(inp)inp.value=next?fmt(next,_gwDecimals(p.unit)):'';
+  if(inp)inp.value=nextDisp?fmt(nextDisp,factor>1?0:_gwDecimals(p.unit)):'';
   var row=document.getElementById('gwrow_'+pid);
   if(row)row.style.borderColor=next>0?'rgba(239,68,68,.4)':'';
   _gwUpdateSummary();
   markModalDirty();
 };
 window._gwQtyInput=function(pid,val){
-  var qty=parseFloat((val||'').replace(',','.'))||0;
-  if(qty<0)qty=0;
+  var p=findP(pid);if(!p)return;
+  var factor=_gwInputFactor(p.unit);
+  var disp=parseFloat((val||'').replace(',','.'))||0;
+  if(disp<0)disp=0;
+  var qty=parseFloat((disp/factor).toFixed(4));
   _gwState.draft[pid]=qty;
   var row=document.getElementById('gwrow_'+pid);
   if(row)row.style.borderColor=qty>0?'rgba(239,68,68,.4)':'';
